@@ -72,6 +72,26 @@ class Stock:
                     method.__name__,
                     lambda serie=self.__getattribute__(attrname): method(serie)
                     )
+            
+    def MACD(self,a:float = 12,b:float = 26,c:float = 9):
+        '''
+        Mean Averaged Convergence Divergence (Indicator)
+
+        :param a: EMA Slow
+        :param b: EMA Fast
+        :param c: Signal
+        :returns: Dataframe
+        '''
+        cl = self._yfdata['Close']
+
+        fast_ema = cl.ewm(span=a, min_periods=a).mean()
+        slow_ema = cl.ewm(span=b, min_periods=b).mean()
+        self._yfdata['MACD'] = fast_ema - slow_ema
+        self._yfdata['sig'] = self._yfdata['MACD'].ewm(span=c, min_periods=c).mean()
+
+        return self._yfdata.loc[:, ['MACD','sig']]
+
+
 
     def pct(self,serie:pd.DataFrame = pd.DataFrame()):
         print(serie)
@@ -129,7 +149,8 @@ class Stock:
                                 tickers=[self.ticker],
                                 period=period,
                                 interval=interval,
-                                multi_level_index=False
+                                multi_level_index=False,
+                                auto_adjust=True
                                 )
                     
                     case False:
@@ -138,9 +159,9 @@ class Stock:
                                 start=start,
                                 end=end,
                                 interval=interval,
-                                multi_level_index=False
+                                multi_level_index=False,
+                                auto_adjust=True
                                 )
-                    
                 self.__stockprint__('DOWNLOAD - Stock downloaded sucessfully')
             except:
                 raise self.__stockprint__('DOWLOAD ERROR')
