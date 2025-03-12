@@ -2,6 +2,7 @@ import yfinance as yf
 import datetime as dt
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from StockLib.utils import scrap_url, create_arbo
 import types
 import os
