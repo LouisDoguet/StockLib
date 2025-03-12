@@ -1,0 +1,51 @@
+{
+    "layout":{
+        "template": "plotly_dark",
+        "title":{
+            "text":"_TICKERNAME_",
+            "y":0.95,
+            "x":0.5,
+            "xanchor":"center",
+            "yanchor":"top",
+            "font": {
+                "size":40,
+                "family":"Arial, sans-serif"
+            }
+        },
+        "xaxis":{
+            "rangeslider":{
+                "yaxis":{
+                    "rangemode":"auto"
+                }
+            }
+        },
+        "yaxis":{
+            "fixedrange":false
+        }
+    },
+    
+    "stockdata":{
+        
+        "candle_data":{
+            "x":"_DATES_",
+            "open":"_OPENDATA_",
+            "high":"_HIGHDATA_",
+            "low":"_LOWDATA_",
+            "close":"_CLOSEDATA_",
+            "increasing":{
+                "fillcolor":"yellow", 
+                "line":{
+                    "color":"yellow",
+                    "width":1
+                }
+            },
+            "decreasing":{
+                "fillcolor":"grey", 
+                "line":{
+                    "color":"grey",
+                    "width":1
+                }
+            }
+        }
+    }
+}
