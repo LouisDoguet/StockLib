@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from StockLib.utils import scrap_url, create_arbo
+from StockLib.PlotlyStock import StockPlot
 import types
 import os
 
@@ -60,9 +61,11 @@ class Stock:
             self.__stockprint__('Empty stock object created, no data loaded.')
 
     def __setvalues__(self):
+
         for dtype in DATATYPE:
             setattr(self, dtype.lower(), self._yfdata[dtype])
         self.__setmet__(self.pct)
+        self.__setmet__(self.MACD)
 
     def __setmet__(self,method:types.MethodType):
 
@@ -71,10 +74,10 @@ class Stock:
                 setattr(
                     self.__getattribute__(attrname), 
                     method.__name__,
-                    lambda serie=self.__getattribute__(attrname): method(serie)
+                    lambda serie=self.__getattribute__(attrname): method(serie=serie)
                     )
             
-    def MACD(self,a:float = 12,b:float = 26,c:float = 9):
+    def MACD(self,serie=pd.DataFrame(),a:float = 12,b:float = 26,c:float = 9):
         '''
         Mean Averaged Convergence Divergence (Indicator)
 
@@ -83,19 +86,22 @@ class Stock:
         :param c: Signal
         :returns: Dataframe
         '''
-        cl = self._yfdata['Close']
+
+        cl = serie
+        if serie.empty:
+            cl = self._yfdata['Close']
 
         fast_ema = cl.ewm(span=a, min_periods=a).mean()
         slow_ema = cl.ewm(span=b, min_periods=b).mean()
         self._yfdata['MACD'] = fast_ema - slow_ema
         self._yfdata['sig'] = self._yfdata['MACD'].ewm(span=c, min_periods=c).mean()
+        self._yfdata['deltaMACD'] = self._yfdata['sig'] - self._yfdata['MACD']
 
-        return self._yfdata.loc[:, ['MACD','sig']]
-
+        return self._yfdata.loc[:, ['MACD','sig','deltaMACD']]
 
 
     def pct(self,serie:pd.DataFrame = pd.DataFrame()):
-        print(serie)
+
         if serie.empty:
             serie = self._yfdata
         return serie.pct_change()
@@ -186,40 +192,11 @@ class Stock:
 
         try:
             df = self._yfdata
-            x=self._yfdata.index
+            dates=self._yfdata.index
         except:
             raise ValueError('Stock not downloaded. Use .download() method')
         
-        cdata = go.Candlestick(
-            x=x,
-            open=df['Open'],
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
-            increasing={
-                'fillcolor':'yellow', 
-                'line':{'color':"yellow",'width':1}
-                },
-            decreasing={
-                'fillcolor':'grey', 
-                'line':{'color':"grey",'width':1}
-                }
-            )
-
-        fig = go.Figure(
-            data=cdata,
-            layout=go.Layout(
-                template='plotly_dark',
-                    title={
-                        'text':self.ticker,
-                        'y':0.90,
-                        'x':0.5,
-                        'xanchor':'center',
-                        'yanchor':'top',
-                        'font': {'size':40,'family':'Arial, sans-serif'}
-                        },
-                    )
-                )
+        fig, cdata = StockPlot(self).plotcandle()
         
         self._svg = fig
         if renderer == '':

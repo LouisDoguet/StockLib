@@ -44,7 +44,7 @@ class Bundle:
                  period: str = '',
                  interval: str = '1d',
                  datatype: str = 'all',
-                 overwrite: str = False,
+                 overwrite: bool = False,
                  ):
         """
         Method dowloading stocks info via `YahooFinance <https://finance.yahoo.com/>`_
@@ -69,7 +69,7 @@ class Bundle:
             self.low[stock.ticker] = stock.low
             self.volume[stock.ticker] = stock.volume
 
-    def plotcandles(self):
+    def plotcandle(self):
         """
         Displays candles for the stocks in the :Stock: object
         """
@@ -88,6 +88,7 @@ class Bundle:
             cols=cols,
             subplot_titles=self.l_tickers
             )
+        
         fig.update_layout(
             lay,
             title={
