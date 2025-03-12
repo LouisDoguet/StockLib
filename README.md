@@ -1,15 +1,44 @@
-Import library :
+# 📊 StockLib
 
-import StockLib as sl will get you 2 main objects :
+StockLib is a Python library designed to manipulate and analyze stock market data. (In development) It will include functionalities to retrieve, visualize, and analyze financial data, particularly for creating interactive plots using **Plotly**.
 
-sl.Stock() -> Stock object
-Methods : dowload, savedata, plotcandle ...
+## 🚀 Features (projected)
 
-sl.StockBundle -> Bundle, group of stocks
-Possible to plot everything w plotcandles
+- Retrieve stock market data (e.g., historical prices)
+- Display interactive charts with **Plotly**
+- Basic and advanced technical analysis
+- Support for OHLC data (Open, High, Low, Close)
 
+## 🔧 Installation
 
-Notes from Baptiste:
-- Get info from other sources (Alpha Vantage, Bloomberg, etc)
-- SQL storage for stocks info (PostgreSQL, MySQL ou NoSQL MongoDB, InfluxDB)
-- SMA (Moyenne Mobile Simple), EMA (MM exponentielle) et Golden/Death Cross pour les moyennes mobiles {MM}. Des Indicateurs de Tendances (IT) ADX (average direction index), Ichimoku Kinko Hyo et Parabolic SAR (discutable). De Momentum RSI, MACD, Stochastic Oscillator. Indicateur de Volume avec l'on-balance Volume (OBV) et le Volume Weighted Average Price (VWAP). Aussi des indicateur de résistence.
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/LouisDoguet/StockLib.git
+    ```
+   
+2. Create a virtual environment (optional but recommended):
+    ```bash
+    python3 -m venv env
+    source env/bin/activate  # On Linux/macOS
+    env\Scripts\activate     # On Windows
+    ```
+
+3. Install the dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## 📈 Example Usage
+
+Here's an example of how to load data and plot a chart using **Plotly**:
+
+import StockLib as sl
+
+tickers = ['GOOG','AAPL','MSFT','TSLA','F','NVDA']
+bun = sl.Bundle(tickers)
+bun.download(
+    period='1d',
+    interval='1m',
+    overwrite=True
+)
+bun.plotcandle()
