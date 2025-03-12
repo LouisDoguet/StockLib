@@ -32,6 +32,7 @@ StockLib is a Python library designed to manipulate and analyze stock market dat
 
 Here's an example of how to load data and plot a chart using **Plotly**:
 
+```python
 import StockLib as sl
 
 tickers = ['GOOG','AAPL','MSFT','TSLA','F','NVDA']
@@ -42,3 +43,4 @@ bun.download(
     overwrite=True
 )
 bun.plotcandle()
+```
