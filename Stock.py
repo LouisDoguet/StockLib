@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from StockLib.utils import scrap_url, create_arbo
 from StockLib.PlotlyStock import StockPlot
+import StockLib.Indicators as ind
 import types
 import os
 
@@ -86,22 +87,13 @@ class Stock:
         :param c: Signal
         :returns: Dataframe
         '''
-
-        cl = serie
-        if serie.empty:
-            cl = self._yfdata['Close']
-
-        fast_ema = cl.ewm(span=a, min_periods=a).mean()
-        slow_ema = cl.ewm(span=b, min_periods=b).mean()
-        self._yfdata['MACD'] = fast_ema - slow_ema
-        self._yfdata['sig'] = self._yfdata['MACD'].ewm(span=c, min_periods=c).mean()
-        self._yfdata['deltaMACD'] = self._yfdata['sig'] - self._yfdata['MACD']
-
-        return self._yfdata.loc[:, ['MACD','sig','deltaMACD']]
+        return ind.MACD(self,serie,a,b,c).get_rawdata()
 
 
     def pct(self,serie:pd.DataFrame = pd.DataFrame()):
-
+        '''
+        Percentage Change of the stock
+        '''
         if serie.empty:
             serie = self._yfdata
         return serie.pct_change()

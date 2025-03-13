@@ -5,8 +5,17 @@ import os
 import json
 
 class StockPlot():
+    ''''
+    Class hadling PLOTLY objects
+    '''
 
     def __init__(self,stock):
+        '''
+        Simple handling of Plotly lib for *StockLib* uses
+
+        :param stock: *Stock* object to translate in Plotly objects to plot
+        '''
+
         path = os.getcwd() + '/StockLib/plotlydata.json'
         f = open(path)
         content = f.read()
@@ -21,9 +30,16 @@ class StockPlot():
         f.close()
 
     def __init_layout__(self):
+        '''
+        Layout initialization
+        '''
         self.layout['title']['text'] = self.stock.ticker
     
     def __init_candles__(self):
+        '''
+        *go.Candlesticks object initialization*
+        '''
+
         dates=self.stock._yfdata.index
         stockdata = self.stock._yfdata
         self.candlesticks['x'] = dates
@@ -34,6 +50,9 @@ class StockPlot():
 
 
     def plotcandle(self):
+        '''
+        Creates the candle plot of the stock
+        '''
         
         fig = make_subplots(
             rows=2,
