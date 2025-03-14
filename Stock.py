@@ -88,6 +88,31 @@ class Stock:
         :returns: Dataframe
         '''
         return ind.MACD(self,serie,a,b,c).get_rawdata()
+    
+    def ATR(self, n:int = 14):
+        '''
+        Average True Rate
+        '''
+
+        return ind.ATR(self,n).get_rawdata()
+    
+    def BollingerBands(self, n:int = 14, k:float = 2):
+        '''
+        Bollinger Bands
+        '''
+        return ind.BollingerBands(self,n,k).get_rawdata()
+    
+    def RSI(self, n:int = 14):
+        '''
+        Relative Strength Index
+        '''
+        return ind.RSI(self,n).get_rawdata()
+    
+    def ADX(self, n:int = 14):
+        '''
+        Average Directional Index
+        '''
+        return ind.ADX(self,n).get_rawdata()
 
 
     def pct(self,serie:pd.DataFrame = pd.DataFrame()):
@@ -144,23 +169,23 @@ class Stock:
             try:
                 match bool_period:
                     case True:
-                            stock_data = yf.download(
-                                tickers=[self.ticker],
-                                period=period,
-                                interval=interval,
-                                multi_level_index=False,
-                                auto_adjust=True
-                                )
+                        stock_data = yf.download(
+                            tickers=[self.ticker],
+                            period=period,
+                            interval=interval,
+                            multi_level_index=False,
+                            auto_adjust=True
+                            )
                     
                     case False:
-                            stock_data = yf.download(
-                                tickers=[self.ticker],
-                                start=start,
-                                end=end,
-                                interval=interval,
-                                multi_level_index=False,
-                                auto_adjust=True
-                                )
+                        stock_data = yf.download(
+                            tickers=[self.ticker],
+                            start=start,
+                            end=end,
+                            interval=interval,
+                            multi_level_index=False,
+                            auto_adjust=True
+                            )
                 self.__stockprint__('DOWNLOAD - Stock downloaded sucessfully')
             except:
                 raise self.__stockprint__('DOWLOAD ERROR')
