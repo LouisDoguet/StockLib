@@ -1,6 +1,9 @@
 {
     "layout":{
         "template": "plotly_dark",
+        "legend":{
+            "visible":false
+        },
         "title":{
             "text":"_TICKERNAME_",
             "y":0.95,
@@ -9,18 +12,26 @@
             "yanchor":"top",
             "font": {
                 "size":40,
-                "family":"Arial, sans-serif"
+                "family":"Arial"
             }
         },
         "xaxis":{
             "rangeslider":{
                 "yaxis":{
                     "rangemode":"auto"
-                }
+                },
+                "visible":false,
+                "thickness":0.07
             }
         },
         "yaxis":{
             "fixedrange":false
+        },
+        "margin":{
+            "l":20,
+            "r":20,
+            "t":60,
+            "b":20
         }
     },
     
@@ -47,5 +58,58 @@
                 }
             }
         }
+    },
+
+    "indicators":{
+
+        "line":{
+            "x": "_DATES_",
+            "y": "_YVALUES_",
+            "line":{
+                "color":"None",
+                "width":1
+            },
+            "name": "_DATANAME_"
+        },
+
+        "upperband":{
+            "x": "_DATES_",
+            "y": "_YVALUES_",
+            "line":{
+                "dash": "dash",
+                "color":"yellow",
+                "width":1
+            },
+            "name": "_DATANAME_"
+        },
+
+        "lowerband":{
+            "x": "_DATES_",
+            "y": "_YVALUES_",
+            "line":{
+                "dash": "dash",
+                "color":"grey",
+                "width":1
+            },
+            "fillcolor": "rgba(0, 0, 0, 0.16)",
+            "fill": "tonexty",
+            "name": "_DATANAME_",
+            "opacity": 0.1
+        },
+
+        "bar":{
+            "x":"_DATES_",
+            "y":"_YVALUES_",
+            "name":"_DATANAME_"
+        },
+
+        "hrect":{
+            "y0":"_MINVAL_",
+            "y1":"_MAXVAL_",
+            "fillcolor":"lightgray",
+            "opacity":0.1
+        }
+
     }
+
 }

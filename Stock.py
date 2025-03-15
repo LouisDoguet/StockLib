@@ -61,6 +61,10 @@ class Stock:
         except:
             self.__stockprint__('Empty stock object created, no data loaded.')
 
+        self.indicators: dict = {}    
+
+
+
     def __setvalues__(self):
 
         for dtype in DATATYPE:
@@ -87,32 +91,36 @@ class Stock:
         :param c: Signal
         :returns: Dataframe
         '''
-        return ind.MACD(self,serie,a,b,c).get_rawdata()
+        self.indicators['MACD'] = ind.MACD(self,serie,a,b,c)
+        return self.indicators['MACD'].get_rawdata()['indicator']
     
     def ATR(self, n:int = 14):
         '''
         Average True Rate
         '''
-
-        return ind.ATR(self,n).get_rawdata()
+        self.indicators['ATR'] = ind.ATR(self,n)
+        return self.indicators['ATR'].get_rawdata()['indicator']
     
     def BollingerBands(self, n:int = 14, k:float = 2):
         '''
         Bollinger Bands
         '''
-        return ind.BollingerBands(self,n,k).get_rawdata()
+        self.indicators['Bollinger Bands'] = ind.BollingerBands(self,n,k)
+        return self.indicators['Bollinger Bands'].get_rawdata()['onstock']
     
     def RSI(self, n:int = 14):
         '''
         Relative Strength Index
         '''
-        return ind.RSI(self,n).get_rawdata()
+        self.indicators['RSI'] = ind.RSI(self,n)
+        return ind.RSI(self,n).get_rawdata()['indicator']
     
     def ADX(self, n:int = 14):
         '''
         Average Directional Index
         '''
-        return ind.ADX(self,n).get_rawdata()
+        self.indicators['ADX'] = ind.ADX(self,n)
+        return ind.ADX(self,n).get_rawdata()['indicator']
 
 
     def pct(self,serie:pd.DataFrame = pd.DataFrame()):

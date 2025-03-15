@@ -1,7 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
 
-
 class _Indicator():
     """
     Private Class storing indicator data
@@ -14,6 +13,8 @@ class _Indicator():
         :param stock: *Stock* object to apply the indicator
 
         '''
+
+        self.name = ''
         
         self.stock = stock
         self.data:dict = {
@@ -28,26 +29,42 @@ class _Indicator():
         except:
             raise AssertionError(f'Stock {stock} does not exist')
         
-    def __setdata__(self, data: pd.DataFrame, style):
+    def __setdata__(self, name:str, data:pd.DataFrame, style:str, color:str = None):
+        """
+        Stores the data and its display style correctly in the attribute ```data``` of an ```_Indicator``` object
+
+        :param name: Display name of the dataset
+        :param data: Dataset
+        :param style: Style corresponding to the ```PlotlyStock``` automatic object creation. Accepted values [line, bar, upperband, lowerband]
+
+        """
+
+        data.Name = name
+        if style not in ['line', 'upperband', 'lowerband', 'bar']:
+            style = 'line'
+
         return {
             'data':data,
-            'style':style
+            'style':style,
+            'color':color
         }
     
     def get_rawdata(self):
 
-        df = pd.DataFrame(index=self.stock._yfdata.index)
+        dfindic = pd.DataFrame(index=self.stock._yfdata.index)
+        dfonstock = pd.DataFrame(index=self.stock._yfdata.index)
 
         indic:dict = self.data['indicator']
-        onstock: dict = self.data['onstock']
+        onstock:dict = self.data['onstock']
 
         for indicator_key, indicator_dict in indic.items():
-            df[indicator_key] = indicator_dict['data'].values
+            dfindic[indicator_key] = indicator_dict['data'].values
 
         for onstock_key, onstock_dict in onstock.items():
-            df[onstock_key] = onstock_dict['data'].values
+            dfonstock[onstock_key] = onstock_dict['data'].values
     
-        return df
+        return {'indicator':dfindic, 
+                'onstock':dfonstock}
 
 
 class MACD(_Indicator):
@@ -64,6 +81,8 @@ class MACD(_Indicator):
         :returns: Dataframe
         '''
 
+        self.name = 'MACD'
+
         super().__init__(stock)
 
         if serie.empty:
@@ -73,20 +92,23 @@ class MACD(_Indicator):
         slow_ema = input.ewm(span=b, min_periods=b).mean()
         macd = fast_ema - slow_ema
         signal = macd.ewm(span=c, min_periods=c).mean()
-        self.data['indicator']['MACD'] = self.__setdata__(macd,go.Scatter)
-        self.data['indicator']['sig'] = self.__setdata__(signal,go.Scatter)
-        self.data['indicator']['deltaMACD'] = self.__setdata__(signal-macd,go.Bar)
+        self.data['indicator']['MACD'] = self.__setdata__('MACD',macd,'line')
+        self.data['indicator']['sig'] = self.__setdata__(f'Signal (n={c})',signal,'line')
+        delta = signal - macd
+        self.data['indicator']['deltaMACD'] = self.__setdata__('dMACD',delta,'bar')
 
     
 class ATR(_Indicator):
 
-    def __init__(self, stock, n:int = 14):
+    def __init__(self, stock, n:int = 14,min:int=20,max:int=80):
         '''
         Average True Rate
         :param stock: *Stock* object to apply the indicator
         :param n: Period
         :returns: Dataframe
         '''
+
+        self.name = "ATR"
 
         super().__init__(stock)
 
@@ -103,8 +125,8 @@ class ATR(_Indicator):
         TR = df.max(axis=1,skipna=False)
         ATR = TR.ewm(alpha=1/n, min_periods=n).mean()
 
-        self.data['onstock']['TR'] = self.__setdata__(TR, go.Scatter)
-        self.data['onstock']['ATR'] = self.__setdata__(ATR, go.Scatter)
+        self.data['onstock']['TR'] = self.__setdata__('TR',TR, 'line')
+        self.data['onstock']['ATR'] = self.__setdata__('ATR',ATR, 'line')
 
 
 class BollingerBands(_Indicator):
@@ -119,6 +141,8 @@ class BollingerBands(_Indicator):
         :returns: Dataframe
         '''
 
+        self.name = "BollingerBands"
+
         super().__init__(stock)
 
         self.input:pd.DataFrame = self.stock._yfdata['Close']
@@ -129,10 +153,10 @@ class BollingerBands(_Indicator):
         upper_band = rolling_mean + (rolling_std * k)
         lower_band = rolling_mean - (rolling_std * k)
 
-        self.data['onstock']['Upper band'] = self.__setdata__(upper_band, go.Scatter)
-        self.data['onstock']['Lower band'] = self.__setdata__(lower_band, go.Scatter)
-        self.data['onstock']['Rolling mean'] = self.__setdata__(rolling_mean, go.Scatter)
-        self.data['indicator']['Delta'] = self.__setdata__(upper_band-lower_band, go.Bar)
+        self.data['onstock']['Upper band'] = self.__setdata__('High lim.', upper_band, 'upperband')
+        self.data['onstock']['Lower band'] = self.__setdata__('Low lim.',lower_band, 'lowerband')
+        self.data['onstock']['Rolling mean'] = self.__setdata__(f'Rolling Mean (n={n})',rolling_mean, 'line','white')
+        self.data['indicator']['Delta'] = self.__setdata__('Range',upper_band-lower_band, 'bar')
 
 
 class RSI(_Indicator):
@@ -146,6 +170,8 @@ class RSI(_Indicator):
         :returns: Dataframe
         '''
 
+        self.name = "RSI"
+
         super().__init__(stock)
 
         self.input:pd.DataFrame = self.stock._yfdata['Close']
@@ -157,7 +183,7 @@ class RSI(_Indicator):
         RS = avg_gain / avg_loss
         RSI = 100 - (100 / (1 + RS))
 
-        self.data['indicator']['RSI'] = self.__setdata__(RSI, go.Scatter)
+        self.data['indicator']['RSI'] = self.__setdata__('RSI', RSI, 'line')
 
 
 class ADX(_Indicator):
@@ -171,6 +197,8 @@ class ADX(_Indicator):
         :returns: Dataframe
         '''
 
+        self.name = "Bollinger Bands"
+
         super().__init__(stock)
 
         self.input:pd.DataFrame = self.stock._yfdata
@@ -178,7 +206,7 @@ class ADX(_Indicator):
         L = self.input['Low']
 
         df = pd.DataFrame()
-        df['ATR'] = ATR(stock,n).get_rawdata()['ATR']
+        df['ATR'] = ATR(stock,n).get_rawdata()['onstock']['ATR']
         df['PDM'] = H - H.shift(1)
         df['NDM'] = L.shift(1) - L
         df['PDM'] = df['PDM'].where((df['PDM'] > 0) & (df['PDM'] > df['NDM']), 0)
@@ -189,4 +217,4 @@ class ADX(_Indicator):
         ADX = DX.ewm(alpha=1/n, min_periods=n).mean()
 
         #self.data['indicator']['DX'] = self.__setdata__(DX, go.Scatter)
-        self.data['indicator']['ADX'] = self.__setdata__(ADX, go.Scatter)
+        self.data['indicator']['ADX'] = self.__setdata__('ADX' , ADX, 'line')
