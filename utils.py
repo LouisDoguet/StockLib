@@ -1,4 +1,6 @@
 import requests
+import datetime as dt
+import shutil
 from bs4 import BeautifulSoup
 import os
 
@@ -25,7 +27,7 @@ def scrap_url(URL: str):
             ticker_dict[list_row[0]] = list_row[1:]
     return ticker_dict
 
-def create_arbo(path: str, name: str):
+def create_arbo(path: str, name: str, date:dt.datetime, intraday:int = None):
     """
     Creates a data arborescence at the specified path
 
@@ -36,14 +38,26 @@ def create_arbo(path: str, name: str):
 
 
     dirname = path + '/{}'.format(str.replace(name,'.','-'))
-    dirjson = dirname + '/{}'.format('json')
-    dirsvg = dirname + '/{}'.format('svg')
+    dirnamedate = dirname + '/{}'.format(date)
+    if intraday != None:
+        dirnamedate+= f'_{intraday}'
+    dirjson = dirnamedate + '/{}'.format('json')
+    dirsvg = dirnamedate + '/{}'.format('svg')
 
     try:
-        os.makedirs(dirname)
-        os.makedirs(dirjson)
-        os.makedirs(dirsvg)
+        os.mkdir(dirname)
     except:
         pass
 
-    return dirname, dirjson, dirsvg 
+    dir_created = False
+
+    try:
+        os.mkdir(dirnamedate)
+        os.mkdir(dirjson)
+        os.mkdir(dirsvg)
+        print('dinamedate1'+dirnamedate)
+    except:
+        pass
+        
+
+    return dirname, dirnamedate, dirjson, dirsvg 

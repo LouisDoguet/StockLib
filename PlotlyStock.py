@@ -36,11 +36,16 @@ class StockPlot():
         self.upperband = plotlydata['indicators']['upperband']
         self.lowerband = plotlydata['indicators']['lowerband']
         self.bar = plotlydata['indicators']['bar']
+        self.btn = plotlydata['buttons']['btn']
+        self.updatemenu = plotlydata['buttons']['updatemenu']
 
         self.indicators_objects:dict = {}
 
         for key,ind in stock.indicators.items():
             self.indicators_objects[key] = self.__getplotly__(ind)
+
+        self.btn_list = self.__get_btn__()
+        self.__get_updatemenu__()
 
     def __init_layout__(self):
         '''
@@ -92,8 +97,27 @@ class StockPlot():
         self.bar['name'] = data.Name
 
         return go.Bar(self.bar)
-
     
+    def __get_btn__(self):
+
+        btn_list = []
+        bool_visibility = [False for _ in range(len(self.indicators_objects)+1)]
+        bool_visibility[0] = True
+        iter = 1
+        for key,ind in self.stock.indicators.items():
+            bool_visibility[iter] = True
+            self.btn['label'] = key
+            self.btn['args'][0]['visible'] = bool_visibility
+            btn_list.append(self.btn)
+            bool_visibility = [False for _ in range(len(self.indicators_objects)+1)]
+            iter+=1
+
+        return btn_list
+    
+    def __get_updatemenu__(self):
+        self.updatemenu['buttons'] = self.btn_list
+        return self.updatemenu
+
 
     def __getplotly__(self, indicator: ind._Indicator):
         '''
@@ -190,6 +214,10 @@ class StockPlot():
                     row=2,
                     col=1
                 )
+        # DEVELOPP DISPLAY BUTTON LATER
+        '''fig.update_layout(
+            updatemenus=[self.updatemenu]
+            )'''
 
         fig.update_layout(go.Layout(self.layout))
 
@@ -212,3 +240,4 @@ class StockPlot():
             if len(ind_obj['indicator']) != 0:
                 for keys,g in ind_obj['indicator'].items():
                     indfig.add_trace(g)
+

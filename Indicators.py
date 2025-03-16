@@ -66,7 +66,6 @@ class _Indicator():
         return {'indicator':dfindic, 
                 'onstock':dfonstock}
 
-
 class MACD(_Indicator):
 
     def __init__(self, stock, serie:pd.DataFrame = pd.DataFrame(),a:float = 12,b:float = 26,c:float = 9):
@@ -125,8 +124,8 @@ class ATR(_Indicator):
         TR = df.max(axis=1,skipna=False)
         ATR = TR.ewm(alpha=1/n, min_periods=n).mean()
 
-        self.data['onstock']['TR'] = self.__setdata__('TR',TR, 'line')
-        self.data['onstock']['ATR'] = self.__setdata__('ATR',ATR, 'line')
+        self.data['indicator']['TR'] = self.__setdata__('TR',TR, 'line')
+        self.data['indicator']['ATR'] = self.__setdata__('ATR',ATR, 'line')
 
 
 class BollingerBands(_Indicator):

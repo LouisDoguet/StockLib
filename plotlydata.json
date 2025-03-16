@@ -110,6 +110,24 @@
             "opacity":0.1
         }
 
-    }
+    },
 
+    "buttons":{
+
+        "updatemenu":{
+            "type":"buttons",
+            "direction":"right",
+            "active":0,
+            "x":0,
+            "y":0,
+            "buttons":"_BUTTONLIST_"
+        },
+
+        "btn":{
+            "label":"_INDICATOR_",
+            "method":"update",
+            "args":[{"visible":"_DISPLAY_"}]
+        }
+
+    }
 }
