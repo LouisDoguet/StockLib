@@ -1,5 +1,8 @@
 # 📊 StockLib
 
+![newplot](https://github.com/user-attachments/assets/a17e52f0-e51e-4e8d-b715-91052d9dbda7)
+
+
 StockLib is a Python library designed to manipulate and analyze stock market data. (In development) It will include functionalities to retrieve, visualize, and analyze financial data, particularly for creating interactive plots using **Plotly**.
 
 ## 🚀 Features (projected)
