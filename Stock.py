@@ -16,7 +16,7 @@ class Stock:
     *Stock* class storing stock infos and methods
     """
 
-    def __init__(self, ticker: str, load_local:dict = None):
+    def __init__(self, ticker: str, local_data:dict = None):
         """
         Class constructor creating a *Stock* instance
 
@@ -25,11 +25,11 @@ class Stock:
         """
 
         self.ticker:str = ticker
-        self.load_local(load_local)           
+        self.load_local(local_data)           
         self.indicators: dict = {}
 
     
-    def load_local(self, load_local: dict = None):
+    def load_local(self, local_data: dict = None):
 
         self._arbo: dict = {}
         self._yfdata: pd.DataFrame = pd.DataFrame()
@@ -38,20 +38,22 @@ class Stock:
         default_path = os.getcwd() + '/StockData'
         default_date = dt.datetime.today().date()
         default_overwrite = True
+        default_loadlocal = True
         default_intraday = None
 
-        if load_local == None:
-            load_local:dict = {
+        if local_data == None:
+            local_data:dict = {
                 'bool':True,
                 'path':default_path,
                 'date':default_date,
                 'intraday':default_intraday
             }
 
-        # Utiliser les valeurs du dictionnaire load_local si elles existent, sinon utiliser les valeurs par défaut
-        self._arbo['path'] = load_local.get('path', default_path)
-        self._arbo['date'] = load_local.get('date', default_date)
-        self._arbo['intraday'] = load_local.get('intraday', default_intraday)
+        # Utiliser les valeurs du dictionnaire local_data si elles existent, sinon utiliser les valeurs par défaut
+        local_data['bool'] = local_data.get('bool', default_loadlocal)
+        self._arbo['path'] = local_data.get('path', default_path)
+        self._arbo['date'] = local_data.get('date', default_date)
+        self._arbo['intraday'] = local_data.get('intraday', default_intraday)
 
         # Créer l'arborescence
         arb = create_arbo(self._arbo['path'], self.ticker, self._arbo['date'], self._arbo['intraday'])[1:]
@@ -68,20 +70,22 @@ class Stock:
         # Charger les données si elles existent et si l'utilisateur ne demande pas de les ignorer
 
         try:
-            if not load_local['bool']:
-                self.__stockprint__('Data ignored.')
-                self._arbo['loaded'] = False
-                return
             
+            print(self._arbo['json']['filepath'])
             self._yfdata = pd.read_json(self._arbo['json']['filepath'])
             self._arbo['loaded'] = True
 
             self.date = self._arbo['date']
             self.__setvalues__()
             self.__stockprint__(f'Data loaded. ({self._arbo["path"]})')
+
         except FileNotFoundError:
+
+            self._arbo['loaded'] = False
             self.__stockprint__('No data found to load.')
+
         except Exception as e:
+            self._arbo['loaded'] = False
             self.__stockprint__(f'Error loading data: {e}')
             
 
