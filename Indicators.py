@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 class _Indicator():
@@ -19,7 +21,8 @@ class _Indicator():
         self.stock = stock
         self.data:dict = {
             'onstock': {},
-            'indicator': {}
+            'indicator': {},
+            'analysis':{}
         }
 
         self.input = serie
@@ -96,6 +99,14 @@ class MACD(_Indicator):
         delta = signal - macd
         self.data['indicator']['deltaMACD'] = self.__setdata__('dMACD',delta,'bar')
 
+    def data_analysis(self):
+        
+        delta:pd.DataFrame = np.sign(self.data['indicator']['deltaMACD']['data'])
+        sign = delta.where(delta.shift(1) != delta,0)
+        self.data['analysis']['crossing'] = sign
+        sign.plot()
+        plt.show()
+
     
 class ATR(_Indicator):
 
@@ -149,13 +160,15 @@ class BollingerBands(_Indicator):
         rolling_mean = self.input.rolling(window=n).mean()
         rolling_std = self.input.rolling(window=n).std()
 
-        upper_band = rolling_mean + (rolling_std * k)
-        lower_band = rolling_mean - (rolling_std * k)
+        delta = rolling_std * k
+        upper_band = rolling_mean + delta
+        lower_band = rolling_mean - delta
 
         self.data['onstock']['Upper band'] = self.__setdata__('High lim.', upper_band, 'upperband')
         self.data['onstock']['Lower band'] = self.__setdata__('Low lim.',lower_band, 'lowerband')
         self.data['onstock']['Rolling mean'] = self.__setdata__(f'Rolling Mean (n={n})',rolling_mean, 'line','white')
-        self.data['indicator']['Delta'] = self.__setdata__('Range',upper_band-lower_band, 'bar')
+        #self.data['indicator']['Delta'] = self.__setdata__('Range',upper_band-lower_band, 'bar')
+        self.data['indicator']['RelativeStockPositon'] = self.__setdata__('Relative Stock Position',(self.input - rolling_mean)/delta,'line','blue')
 
 
 class RSI(_Indicator):
@@ -205,7 +218,7 @@ class ADX(_Indicator):
         L = self.input['Low']
 
         df = pd.DataFrame()
-        df['ATR'] = ATR(stock,n).get_rawdata()['onstock']['ATR']
+        df['ATR'] = ATR(stock,n).get_rawdata()['indicator']['ATR']
         df['PDM'] = H - H.shift(1)
         df['NDM'] = L.shift(1) - L
         df['PDM'] = df['PDM'].where((df['PDM'] > 0) & (df['PDM'] > df['NDM']), 0)
@@ -216,4 +229,4 @@ class ADX(_Indicator):
         ADX = DX.ewm(alpha=1/n, min_periods=n).mean()
 
         #self.data['indicator']['DX'] = self.__setdata__(DX, go.Scatter)
-        self.data['indicator']['ADX'] = self.__setdata__('ADX' , ADX, 'line')
+        self.data['indicator']['ADX'] = self.__setdata__('ADX' , ADX/100, 'line')
